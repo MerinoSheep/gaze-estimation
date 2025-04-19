@@ -45,7 +45,7 @@ def onnx_export(params):
     bins = data_config[params.dataset]['bins']
 
     # Set device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "xpu" if torch.xpu.is_available() else "cpu")
 
     # Initialize model
     model = get_model(params.model, bins, inference_mode=True)

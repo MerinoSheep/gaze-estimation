@@ -98,7 +98,7 @@ def evaluate(params, model, data_loader, idx_tensor, device):
 def main():
     params = parse_args()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "xpu" if torch.xpu.is_available() else "cpu")
     torch.backends.cudnn.benchmark = True
 
     model = get_model(params.arch, params.bins, inference_mode=True)
