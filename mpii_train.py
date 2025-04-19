@@ -165,7 +165,7 @@ def train_one_epoch(
 
         if (idx + 1) % 100 == 0:
             logging.info(
-                f'Epoch [{epoch + 1}/{params.num_epochs}], Iter [{idx + 1}/{len(data_loader)}] '
+                f'[{time.strftime("%H:%M:%S")}] Epoch [{epoch + 1}/{params.num_epochs}], Iter [{idx + 1}/{len(data_loader)}] '
                 f'Losses: Gaze Yaw {sum_loss_yaw / (idx + 1):.4f}, Gaze Pitch {sum_loss_pitch / (idx + 1):.4f}'
             )
     avg_loss_pitch, avg_loss_yaw = sum_loss_pitch / len(data_loader), sum_loss_yaw / len(data_loader)
