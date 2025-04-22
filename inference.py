@@ -67,15 +67,21 @@ def main(params):
     face_detector = uniface.RetinaFace()  # third-party face detection library
 
     try:
-        gaze_detector = get_model(params.model, params.bins, inference_mode=True)
+        model = get_model(params.model, params.bins, inference_mode=True)
         state_dict = torch.load(params.weight, map_location=device)
-        gaze_detector.load_state_dict(state_dict)
+        model.load_state_dict(state_dict)
         logging.info("Gaze Estimation model weights loaded.")
     except Exception as e:
         logging.info(f"Exception occured while loading pre-trained weights of gaze estimation model. Exception: {e}")
 
-    gaze_detector.to(device)
-    gaze_detector.eval()
+    random_tensor = torch.rand(1, 3, 448, 448)
+    model.to(device)
+    model.eval()
+    # Tracing the model with example input
+    gaze_detector = torch.jit.trace(model, random_tensor)
+    # Invoking torch.jit.freeze
+    gaze_detector = torch.jit.freeze(gaze_detector)
+
 
     video_source = params.source
     if video_source.isdigit() or video_source == '0':

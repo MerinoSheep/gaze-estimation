@@ -6,7 +6,6 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
 
 from config import data_config
 from utils.helpers import get_model, get_dataloader
@@ -113,15 +112,15 @@ def train_one_epoch(
     sum_loss_pitch, sum_loss_yaw = 0, 0
 
     for idx, (images, labels_gaze, regression_labels_gaze, _) in enumerate(data_loader):
-        images = images.to(device)
+        images = images.to(device,non_blocking=True)
 
         # Binned labels
-        label_pitch = labels_gaze[:, 0].to(device)
-        label_yaw = labels_gaze[:, 1].to(device)
+        label_pitch = labels_gaze[:, 0].to(device,non_blocking=True)
+        label_yaw = labels_gaze[:, 1].to(device,non_blocking=True)
 
         # Regression labels
-        label_pitch_regression = regression_labels_gaze[:, 0].to(device)
-        label_yaw_regression = regression_labels_gaze[:, 1].to(device)
+        label_pitch_regression = regression_labels_gaze[:, 0].to(device,non_blocking=True)
+        label_yaw_regression = regression_labels_gaze[:, 1].to(device,non_blocking=True)
 
         # Inference
         pitch, yaw = model(images)
@@ -148,7 +147,7 @@ def train_one_epoch(
         # Total loss for pitch and yaw
         loss = loss_pitch + loss_yaw
 
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()
 
@@ -199,7 +198,7 @@ def main():
         )
 
         logging.info(
-            f'Epoch [{epoch + 1}/{params.num_epochs}] '
+            f'Epoch [{epoch + 1}/{params.num_epochs}] ' +
             f'Losses: Gaze Yaw {avg_loss_yaw:.4f}, Gaze Pitch {avg_loss_pitch:.4f}'
         )
 
