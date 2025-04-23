@@ -109,11 +109,11 @@ def train_one_epoch(
     """
 
     model.train()
+    model.to(memory_format=torch.channels_last)
     sum_loss_pitch, sum_loss_yaw = 0, 0
 
     for idx, (images, labels_gaze, regression_labels_gaze, _) in enumerate(data_loader):
-        images = images.to(device,non_blocking=True)
-
+        images = images.to(device,non_blocking=True,memory_format=torch.channels_last)
         # Binned labels
         label_pitch = labels_gaze[:, 0].to(device,non_blocking=True)
         label_yaw = labels_gaze[:, 1].to(device,non_blocking=True)
