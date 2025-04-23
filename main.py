@@ -11,7 +11,7 @@ from config import data_config
 from utils.helpers import get_model, get_dataloader
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', force=True)
 
 
 def parse_args():
@@ -59,7 +59,7 @@ def initialize_model(params, device):
         Tuple[nn.Module, torch.optim.Optimizer, int]: Initialized model, optimizer, and the starting epoch.
     """
     model = get_model(params.arch, params.bins, pretrained=True)
-    optimizer = torch.optim.Adam(model.parameters(), lr=params.lr)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=params.lr,foreach=True)
     start_epoch = 0
 
     if params.checkpoint:
@@ -156,7 +156,7 @@ def train_one_epoch(
 
         if (idx + 1) % 100 == 0:
             logging.info(
-                f'[{time.strftime("%H:%M:%S")}] Epoch [{epoch + 1}/{params.num_epochs}], Iter [{idx + 1}/{len(data_loader)}] '
+                f'Epoch [{epoch + 1}/{params.num_epochs}], Iter [{idx + 1}/{len(data_loader)}] ' +
                 f'Losses: Gaze Yaw {sum_loss_yaw / (idx + 1):.4f}, Gaze Pitch {sum_loss_pitch / (idx + 1):.4f}'
             )
     avg_loss_pitch, avg_loss_yaw = sum_loss_pitch / len(data_loader), sum_loss_yaw / len(data_loader)
@@ -202,7 +202,7 @@ def main():
             f'Losses: Gaze Yaw {avg_loss_yaw:.4f}, Gaze Pitch {avg_loss_pitch:.4f}'
         )
 
-        checkpoint_path = os.path.join(output, "checkpoint.ckpt")
+        checkpoint_path = os.path.join(output, f"checkpoint_{epoch}.ckpt")
         torch.save({
             'epoch': epoch + 1,
             'model_state_dict': model.state_dict(),
